@@ -6,5 +6,7 @@ provider "aws" {
 }
 
 module "vpc" {
-  source = "./modules/network/vpc"
+  source          = "./modules/network/vpc"
+  vpc_prefix      = var.vpc_prefix
+  tag_name_prefix = var.tag_name_prefix
 }

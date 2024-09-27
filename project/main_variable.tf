@@ -13,3 +13,15 @@ variable "aws_secret_key" {
   description = "aws provider secret key"
   type        = string
 }
+
+# module に渡す変数
+variable "vpc_prefix" {
+  description = "cidr block for the vpc"
+  type        = string
+}
+
+variable "tag_name_prefix" {
+  description = "prefix for resource name tags (cabab case)"
+  type        = string
+}
+
