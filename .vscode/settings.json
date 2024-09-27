@@ -1,0 +1,41 @@
+{
+    "workbench.colorTheme": "Default Dark+",
+    "workbench.colorCustomizations": {
+        "[Default Dark+]": {
+            // "editor.minimap.background": "#1e1e1e",
+            // "editor.minimap.foregroundOpacity": 0.5,
+            // "editor.minimap.selectionHighlight": "#444444",
+            "activityBar.activeBackground": "#a250b6",
+            "titleBar.activeBackground": "#d075e790",
+            "titleBar.activeForeground": "#ffffff"
+        }
+    },
+
+    "shellcheck.run": "onSave",
+    "shfmt.executablePath": "/opt/homebrew/bin/shfmt", // also: "onType"
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "string.quoted.double.shell",
+                "settings": {
+                    "foreground": "#d790e4ce" // ダブルクォーテーションの文字列の色
+                }
+            },
+            {
+                "scope": "string.quoted.single.shell",
+                "settings": {
+                    "foreground": "#8acf8a" // シングルクォーテーションの文字列の色
+                }
+            }
+        ]
+    },
+    "[typescript][javascript][html][typescriptreact][javascriptreact][json][eslintrc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll.eslint": "explicit"
+        }
+    },
+    "editor.minimap.maxColumn": 30,
+    "cSpell.words": ["tfvars"]
+}
