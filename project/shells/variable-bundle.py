@@ -1,98 +1,169 @@
+import os
 import re
-import sys
 import hcl2
-import io
+import sys
+import json
 
-if len(sys.argv) != 3:
+# process part
+if len(sys.argv) != 2:
     print("augment error use: python script.py '<main.tf text>' '<module **_variable.tf text>'")
     sys.exit(1)
 
-main_tf_txt = sys.argv[1]
-module_variables_txt = sys.argv[2]
+main_tf_path = sys.argv[1]
 
-# 正規表現で main.tf 内で記述されているの変数名を抽出
-# 変数名は 最初の文字は英字（大文字小文字）またはアンダースコア、2文字目以降は英数字またはアンダースコア
-main_tf_vars = re.findall(r'var\.([a-zA-Z_][a-zA-Z0-9_]*)', main_tf_txt)
+# Extract variables from main.tf
+# main.tfから変数を取り出す
+def list_ref_main_tf(main_path):
+    with open(main_path + "/main.tf", 'r') as file:
+        content = file.read()
+        # print(content)
+    return set(re.findall(r'var\.(\w+)', content))
 
-# 結果を表示
-print("main.tf で使用されている変数名:")
-for var in main_tf_vars:
-    print(var)
+# List declared variables in .tf files on the same level as main.tf
+# main.tf と同階層の .tf ファイルで宣言済み変数をリストする
+def list_variable_from_tf_files(directory):
+    variables = set()
+    for file in os.listdir(directory):
+        if file.endswith('.tf'):
+            with open(os.path.join(directory, file), 'r') as f:
+                tf_dict = hcl2.load(f)
+                if 'variable' in tf_dict:
+                    for var_block in tf_dict['variable']:
+                        # 各 var_block は変数名をキーとする辞書
+                        for var_name in var_block.keys():
+                            variables.add(var_name)
+    return variables
+
+# Get variables from module files
+# モジュールファイルから変数を取得する
+def get_module_variables(module_path):
+    module_vars = {}
+    for file in os.listdir(module_path):
+        if file.endswith('_variable.tf'):
+            with open(os.path.join(module_path, file), 'r') as f:
+                tf_dict = hcl2.load(f)
+                # if 'variable' in tf_dict:
+                #     print(tf_dict)
+                #     # module_vars.update(tf_dict['variable'])
+                if 'variable' in tf_dict:
+                    for var_block in tf_dict['variable']:
+                        for var_name, var_def in var_block.items():
+                            module_vars[var_name] = var_def
+    return module_vars
+
+def process_value(value):
+    if isinstance(value, str):
+        value = value.strip('"')
+        value = remove_outer_braces(value)
+        value = remove_all_braces(value)
+        return value
+    elif isinstance(value, list):
+        return [process_value(v) for v in value]
+    elif isinstance(value, dict):
+        return {k: process_value(v) for k, v in value.items()}
+    else:
+        return value
+
+def remove_outer_braces(value):
+    if value.startswith('${') and value.endswith('}'):
+        return value[2:-1]
+    else:
+        return value
+
+def remove_all_braces(value):
+    pattern = re.compile(r'\$\{([^{}]+)\}')
+    while True:
+        new_value, count = pattern.subn(r'\1', value)
+        if count == 0:
+            break
+        value = new_value
+    return value
+
+def format_value(value, wrap_strings=True, indent=0):
+    indent_str = '  ' * indent
+    if isinstance(value, str):
+        if wrap_strings:
+            return f'"{value}"'
+        else:
+            return value
+    elif isinstance(value, bool):
+        return str(value).lower()
+    elif isinstance(value, (int, float)):
+        return str(value)
+    elif isinstance(value, list):
+        if not value:
+            return '[]'
+        items = []
+        for v in value:
+            items.append(format_value(v, wrap_strings, indent+1))
+        return '[\n' + ',\n'.join(f"{indent_str}  {item}" for item in items) + f'\n{indent_str}]'
+    elif isinstance(value, dict):
+        if not value:
+            return '{}'
+        items = []
+        for k, v in value.items():
+            items.append(f"{indent_str}  {k} = {format_value(v, wrap_strings, indent+1)}")
+        return '{\n' + '\n'.join(items) + f'\n{indent_str}}}'
+    else:
+        return json.dumps(value)
+
+def format_type(type_str):
+    # シングルクォートを削除
+    type_str = type_str.replace("'", "")
+    # コロンを等号に置換
+    type_str = type_str.replace(":", " =")
+    # カンマの後にスペースを追加
+    type_str = re.sub(r',\s*', ', ', type_str)
+    return type_str
 
 
-print("module 配下:")
-print("*****************************************")
-module_v_map = []
+def prepare_bundle_variable_content(variables):
+    content = []
+    for var_name, var_def in variables.items():
+        content.append(f'variable "{var_name}" {{')
+        for key, value in var_def.items():
+            value = process_value(value)
+            if key == 'type':
+                formatted_value = format_type(value)
+                # formatted_value = format_value(value, wrap_strings=False, indent=1)
+            else:
+                formatted_value = format_value(value, wrap_strings=True, indent=1)
+            content.append(f'  {key} = {formatted_value}')
+        content.append('}\n')
+    return '\n'.join(content)
+
+# Write variables to bundle_variable.tf
+def write_to_bundle_variable(content, output_path):
+    with open(output_path, 'w') as f:
+        f.write(content)
+
+# カレントディレクトリのmain.tfをチェックし、使用されているすべての変数（接頭辞がvar.のもの）をリストアップします。
+# 同じディレクトリの .tf ファイルで宣言されている変数は、このリストから削除されます。
+# modules/network/vpc/ ディレクトリの *_variable.tf ファイルで宣言された変数をチェックします。
+# 最後に、main.tf で使用されているが、ローカルで宣言されていないモジュールの変数を bundle_variable.tf に追加します。
 
 
-with io.StringIO(module_variables_txt) as fp:
-    obj = hcl2.load(fp)
-    print(obj)
+# ****************
+# main process
+# ****************
 
-module_variables = obj.get('variable', [])
+# Step 1: Check main.tf and list variables
+main_var_list=list_ref_main_tf(main_tf_path)
 
-sys.exit()
-print(module_variables)
-module_vars_dict = {}
+# Step 2: Remove variables declared in the same level
+declared_vars = list_variable_from_tf_files(main_tf_path)
+main_var_list -= declared_vars
 
-for var_block in module_variables:
-    # 各 var_block は変数名をキーとする辞書
-    for var_name, var_attrs in var_block.items():
-        module_vars_dict[var_name] = var_attrs
+# Step 3: Check module variables
+module_path = os.path.join(main_tf_path, 'modules', 'network', 'vpc')
+module_vars = get_module_variables(module_path)
 
-print()
-print(module_vars_dict)
-print()
-# # 結果を表示
-# for var in module_v_map:
-#     print(f'key="{var["key"]}", value={var["value"]}')
-#     print()
+# Step 4: Add missing variables to bundle_variable.tf
+# bundle_variable.tfに不足している変数を追加
+variables_to_add = {var: module_vars[var] for var in main_var_list if var in module_vars}
 
-variables_to_add = {}
+bundle_content = prepare_bundle_variable_content(variables_to_add)
+print(bundle_content)
 
-for var_name in main_tf_vars:
-    if var_name in module_vars_dict:
-        variables_to_add[var_name] = module_vars_dict[var_name]
-
-existing_vars = set()
-try:
-    with open('main_variable.tf', 'r') as f:
-        existing_content = f.read()
-        existing_vars.update(re.findall(r'variable\s+"([a-zA-Z_][a-zA-Z0-9_]*)"', existing_content))
-except FileNotFoundError:
-    # main_variable.tf が存在しない場合は新規作成
-    pass
-
-# 収集した変数定義を表示
-print("\nmain_variable.tf に追加する変数定義:")
-for var_name, var_attrs in variables_to_add.items():
-    if var_name in existing_vars:
-        continue  # 既に存在する場合はスキップ
-    print(f'variable "{var_name}" {{')
-    for attr_key, attr_value in var_attrs.items():
-        # 値が文字列の場合、適切に処理
-        if isinstance(attr_value, str):
-            if attr_value.startswith('${') and attr_value.endswith('}'):
-                attr_value = attr_value[2:-1]
-            if not (attr_value.startswith('"') and attr_value.endswith('"')):
-                attr_value = f'"{attr_value}"'
-        print(f'  {attr_key} = {attr_value}')
-    print('}\n')
-
-# main_variable.tf に書き込む
-with open('main_variable.tf', 'a') as f:
-    for var_name, var_attrs in variables_to_add.items():
-        if var_name in existing_vars:
-            continue  # 既に存在する場合はスキップ
-        f.write(f'variable "{var_name}" {{\n')
-        for attr_key, attr_value in var_attrs.items():
-            # 値が文字列の場合、引用符で囲む
-            if isinstance(attr_value, str):
-                # "${string}" の形式を "string" に変換
-                if attr_value.startswith('${') and attr_value.endswith('}'):
-                    attr_value = attr_value[2:-1]
-                # 既に引用符で囲まれていない場合、囲む
-                if not (attr_value.startswith('"') and attr_value.endswith('"')):
-                    attr_value = f'"{attr_value}"'
-            f.write(f'  {attr_key} = {attr_value}\n')
-        f.write('}\n\n')
+write_to_bundle_variable(bundle_content, os.path.join(main_tf_path, 'bundle_variable.tf'))
+print(f"Added {len(variables_to_add)} variables to bundle_variable.tf")
