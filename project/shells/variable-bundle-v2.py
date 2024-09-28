@@ -31,6 +31,7 @@ def type_format(value):
         else:
             return 'list(any)'
     elif isinstance(value, str):
+        print("string in type_format")
         # 型情報が既に文字列として与えられている場合、そのまま返す
         if value.startswith('list(') or value.startswith('object(') or value in ['string', 'number', 'bool', 'any']:
             return value
@@ -74,6 +75,9 @@ with io.StringIO(module_variables_txt) as fp:
     obj = hcl2.load(fp)
 
 module_variables = obj.get('variable', [])
+
+print(module_variables)
+print()
 
 # module_vars_dict を辞書に変換（キー：変数名、値：変数定義）
 module_vars_dict = {}
@@ -125,6 +129,9 @@ for var_name, var_attrs in variables_to_add.items():
         if attr_key == 'type':
             # type の値を整形
             attr_value = attr_value.strip('"')  # 余分な引用符を削除
+            # ${...} で囲まれている場合は中身を取り出す
+            if attr_value.startswith('${') and attr_value.endswith('}'):
+                attr_value = attr_value[2:-1]
             print("||||||")
             print(attr_value)
             print("||||||")
