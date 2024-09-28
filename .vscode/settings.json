@@ -26,9 +26,22 @@
                 "settings": {
                     "foreground": "#8acf8a" // シングルクォーテーションの文字列の色
                 }
+            },
+            {
+                "scope": "string.quoted.double.python",
+                "settings": {
+                    "foreground": "#c370d2"
+                }
+            },
+            {
+                "scope": "string.quoted.single.python",
+                "settings": {
+                    "foreground": "#afa038"
+                }
             }
         ]
     },
+
     "[typescript][javascript][html][typescriptreact][javascriptreact][json][eslintrc]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
