@@ -47,8 +47,11 @@ python shells/variable-bundle.py $PWD
 
 module で参照する変数をルートモジュールから渡す際に、ルートモジュールが参照する variable が必要となるため、上記のスクリプトを利用する前提が以下
 
+#### 条件
+
 - module が利用する変数の定義がすでに用意されている
 - main.tf (ルートモジュール) で参照する変数を呼び出す(このタイミングでは variable の定義ができてなくてもいい)
+- shells/modules-pass.txt にモジュール variable の source パスを追記
 - ルートモジュールは main.tf、モジュールが参照する変数の定義は *_variable.tf という形式
 
 これによって、実行結果として bundle_variable.tf に書き込みが行われる
@@ -58,6 +61,8 @@ module で参照する変数をルートモジュールから渡す際に、ル�
 
 ### dev の実行
 
+#### terraform plan
+
 ```bash
 terraform plan \
     -var-file=vars/dev/.secret/secret.tfvars \
@@ -65,6 +70,7 @@ terraform plan \
     -var "tag_name_prefix=project-dev"
 ```
 
+#### terraform apply
 
 ```bash
 terraform apply \

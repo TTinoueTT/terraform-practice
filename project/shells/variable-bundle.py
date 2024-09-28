@@ -6,7 +6,7 @@ import json
 
 # process part
 if len(sys.argv) != 2:
-    print("augment error use: python script.py '<main.tf text>' '<module **_variable.tf text>'")
+    print("augment error use: python variable-bundle.py '<main.tf path>'")
     sys.exit(1)
 
 main_tf_path = sys.argv[1]
@@ -42,9 +42,6 @@ def get_module_variables(module_path):
         if file.endswith('_variable.tf'):
             with open(os.path.join(module_path, file), 'r') as f:
                 tf_dict = hcl2.load(f)
-                # if 'variable' in tf_dict:
-                #     print(tf_dict)
-                #     # module_vars.update(tf_dict['variable'])
                 if 'variable' in tf_dict:
                     for var_block in tf_dict['variable']:
                         for var_name, var_def in var_block.items():
@@ -154,16 +151,32 @@ main_var_list=list_ref_main_tf(main_tf_path)
 declared_vars = list_variable_from_tf_files(main_tf_path)
 main_var_list -= declared_vars
 
-# Step 3: Check module variables
-module_path = os.path.join(main_tf_path, 'modules', 'network', 'vpc')
-module_vars = get_module_variables(module_path)
+modules_path_list = []
 
-# Step 4: Add missing variables to bundle_variable.tf
-# bundle_variable.tfに不足している変数を追加
-variables_to_add = {var: module_vars[var] for var in main_var_list if var in module_vars}
+# Open the file and read each line
+with open(main_tf_path + "/shells/modules-pass.txt", 'r') as file:
+    for line in file:
+        # Remove any leading/trailing whitespace and newline characters
+        line = line.strip()
+        # Add the line to the list if it's not empty
+        if line:
+            modules_path_list.append(line)
 
-bundle_content = prepare_bundle_variable_content(variables_to_add)
-print(bundle_content)
+# Print the resulting list
+# print(modules_path_list)
 
-write_to_bundle_variable(bundle_content, os.path.join(main_tf_path, 'bundle_variable.tf'))
-print(f"Added {len(variables_to_add)} variables to bundle_variable.tf")
+for module_path in modules_path_list:
+    module_vars = get_module_variables(module_path)
+    # Step 3: Check module variables
+    # module_path = os.path.join(main_tf_path, 'modules', 'network', 'vpc')
+    module_vars = get_module_variables(module_path)
+
+    # Step 4: Add missing variables to bundle_variable.tf
+    # bundle_variable.tfに不足している変数を追加
+    variables_to_add = {var: module_vars[var] for var in main_var_list if var in module_vars}
+
+    bundle_content = prepare_bundle_variable_content(variables_to_add)
+    # print(bundle_content)
+
+    write_to_bundle_variable(bundle_content, os.path.join(main_tf_path, 'bundle_variable.tf'))
+    print(f"Added {len(variables_to_add)} variables {module_path} to bundle_variable.tf")
