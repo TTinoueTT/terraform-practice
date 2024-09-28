@@ -10,3 +10,10 @@ module "vpc" {
   vpc_prefix      = var.vpc_prefix
   tag_name_prefix = var.tag_name_prefix
 }
+
+module "subnet" {
+  source          = "./modules/network/vpc"
+  vpc_prefix      = var.vpc_prefix
+  subnet_prefix   = var.subnet_prefix
+  tag_name_prefix = var.tag_name_prefix
+}
