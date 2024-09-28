@@ -10,16 +10,18 @@ if len(sys.argv) != 3:
 main_tf_txt = sys.argv[1]
 module_variables_txt = sys.argv[2]
 
-# 正規表現で変数名を抽出
-main_tf_vars = re.findall(r'var\.([^\s]+)', main_tf_txt)
+# 正規表現で main.tf 内で記述されているの変数名を抽出
+# 変数名は 最初の文字は英字（大文字小文字）またはアンダースコア、2文字目以降は英数字またはアンダースコア
+main_tf_vars = re.findall(r'var\.([a-zA-Z_][a-zA-Z0-9_]*)', main_tf_txt)
 
 # 結果を表示
-print("抽出された変数名:")
+print("main.tf で使用されている変数名:")
 for var in main_tf_vars:
     print(var)
 
 
 print("module 配下:")
+print("*****************************************")
 module_v_map = []
 
 
@@ -29,16 +31,12 @@ with io.StringIO(module_variables_txt) as fp:
 
 module_variables = obj.get('variable', [])
 
+sys.exit()
 print(module_variables)
 module_vars_dict = {}
 
 for var_block in module_variables:
     # 各 var_block は変数名をキーとする辞書
-    # for var_name, var_attrs in var_block.items():
-    #     module_v_map.append({
-    #         'key': var_name,
-    #         'value': var_attrs
-    #     })
     for var_name, var_attrs in var_block.items():
         module_vars_dict[var_name] = var_attrs
 
