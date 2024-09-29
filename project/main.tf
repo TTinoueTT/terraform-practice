@@ -6,14 +6,15 @@ provider "aws" {
 }
 
 module "vpc" {
-  source          = "./modules/network/vpc"
-  vpc_prefix      = var.vpc_prefix
-  tag_name_prefix = var.tag_name_prefix
+  source               = "./modules/network/vpc"
+  vpc_prefix           = var.vpc_prefix
+  public_subnet_prefix = var.public_subnet_prefix
+  tag_name_prefix      = var.tag_name_prefix
 }
 
-module "subnet" {
-  source          = "./modules/network/vpc"
-  vpc_prefix      = var.vpc_prefix
-  subnet_prefix   = var.subnet_prefix
-  tag_name_prefix = var.tag_name_prefix
-}
+# module "subnet" {
+#   source          = "./modules/network/vpc"
+#   vpc_prefix      = var.vpc_prefix
+#   public_subnet_prefix   = var.public_subnet_prefix
+#   tag_name_prefix = var.tag_name_prefix
+# }
