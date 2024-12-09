@@ -1,0 +1,20 @@
+# install Nginx using Ansible
+# Start and Enable Nginx
+# Check the status of Nginx
+# Collect host information
+- name: Setup nginx server on myserver list (host group)
+  hosts:
+    - devservers
+    - testservers
+  become: true
+
+  tasks:
+    - name: Install the latest version of nginx
+
+    - name: Start nginx service
+
+    - name: Enable nginx service
+
+    - name: Get nginx Installed version
+
+    - name: Get status of nginx service
