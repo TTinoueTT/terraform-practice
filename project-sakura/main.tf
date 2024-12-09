@@ -1,0 +1,20 @@
+terraform {
+  required_providers {
+    sakuracloud = {
+      source = "sacloud/sakuracloud"
+
+      # We recommend pinning to the specific version of the SakuraCloud Provider you're using
+      # since new versions are released frequently
+      version = "2.25.5"
+      #version = "~> 2"
+    }
+  }
+}
+# Configure the SakuraCloud Provider
+provider "sakuracloud" {
+  # More information on the authentication methods supported by
+  # the SakuraCloud Provider can be found here:
+  # https://docs.usacloud.jp/terraform/provider/
+
+  # profile = "..."
+}
