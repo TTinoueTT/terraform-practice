@@ -1,8 +1,12 @@
-output "subnet1_id" {
-  description = "The ID of the Public Subnet"
-  value       = aws_subnet.project_pubric_subnet1.id
+output "subnets" {
+  description = "The ID of the Public Subnet1"
+  value       = aws_subnet.project_public_subnet
 }
-output "subnet2_id" {
-  description = "The ID of the Public Subnet"
-  value       = aws_subnet.project_pubric_subnet2.id
-}
+# output "subnet1_id" {
+#   description = "The ID of the Public Subnet1"
+#   value       = aws_subnet.project_public_subnet.id
+# }
+# output "subnet2_id" {
+#   description = "The ID of the Public Subnet2"
+#   value       = aws_subnet.project_public_subnet.id
+# }

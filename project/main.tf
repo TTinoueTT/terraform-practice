@@ -11,6 +11,10 @@ module "vpc" {
   tag_name_prefix = var.tag_name_prefix
 }
 
+# data "aws_availability_zones" "available" {
+#   state = "available"
+# }
+
 module "subnet" {
   source               = "./modules/network/subnet"
   public_subnet_prefix = var.public_subnet_prefix
@@ -45,3 +49,22 @@ module "security_group_ssh" {
   depends_on = [module.vpc]
   vpc_id     = module.vpc.vpc_id
 }
+
+
+
+# module "ec2_instance" {
+#   source          = "./modules/computing/ec2"
+#   vpc_id = module.vpc.vpc_id
+#   tag_name_prefix = var.tag_name_prefix
+#   subnet_id = module.subnet.subnet1_id
+#   # # ref another module parameter
+#   depends_on = [
+#       module.vpc,
+#       module.subnet,
+#       module.security_group_ssh.security_group_id
+#     ]
+#   security_group_id = module.security_group_ssh.security_group_id
+#   # subnet_id = module.subnet.pu
+# }
+
+

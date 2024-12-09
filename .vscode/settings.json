@@ -50,5 +50,13 @@
         }
     },
     "editor.minimap.maxColumn": 30,
-    "cSpell.words": ["tfvars"]
+    "cSpell.words": [
+        "amazonlinux",
+        "kabab",
+        "keypair",
+        "sacloud",
+        "sakura",
+        "sakuracloud",
+        "tfvars"
+    ]
 }

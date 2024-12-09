@@ -1,28 +1,20 @@
 #4 サブネット作成
-resource "aws_subnet" "project_pubric_subnet1" {
-  vpc_id            = var.vpc_id
-  cidr_block        = var.public_subnet_prefix[0].cidr_block
-  availability_zone = var.public_subnet_prefix[0].availability_zone
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+resource "aws_subnet" "project_public_subnet" {
+  # length は terraform で用意された関数で配列の長さを返します
+  count      = length(var.public_subnet_prefix) # 作成するサブネット数
+  vpc_id     = var.vpc_id
+  cidr_block = element(var.public_subnet_prefix, count.index)
+  # az は data ブロックで取得した配列を参照します。
+  availability_zone = data.aws_availability_zones.available.names[count.index % length(var.public_subnet_prefix)]
   tags = {
-    Name = "${var.tag_name_prefix}-${var.public_subnet_prefix[0].name}"
+    Name = "${var.tag_name_prefix}-pub-subnet${count.index + 1}"
   }
 }
-
-resource "aws_subnet" "project_pubric_subnet2" {
-  vpc_id            = var.vpc_id
-  cidr_block        = var.public_subnet_prefix[1].cidr_block
-  availability_zone = var.public_subnet_prefix[1].availability_zone
-  tags = {
-    Name = "${var.tag_name_prefix}-${var.public_subnet_prefix[1].name}"
-  }
-}
-
-#5 サブネットとルートテーブルの紐付け
-resource "aws_route_table_association" "project_public_association1" {
-  subnet_id      = aws_subnet.project_pubric_subnet1.id
-  route_table_id = var.route_table_id
-}
-resource "aws_route_table_association" "project_public_association2" {
-  subnet_id      = aws_subnet.project_pubric_subnet2.id
+resource "aws_route_table_association" "project_public_association" {
+  count          = length(var.public_subnet_prefix)
+  subnet_id      = element(aws_subnet.project_public_subnet.*.id, count.index)
   route_table_id = var.route_table_id
 }

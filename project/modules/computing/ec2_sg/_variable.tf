@@ -1,5 +1,5 @@
 variable "tag_name_prefix" {
-  description = "prefix for resource name tags (cabab case)"
+  description = "prefix for resource name tags (kabab case)"
   type        = string
 }
 variable "vpc_id" {
@@ -8,6 +8,6 @@ variable "vpc_id" {
 }
 
 variable "protocol_name" {
-  description = "Trafic protocol http, https, ssh, smtp, etc..."
+  description = "Traffic protocol http, https, ssh, smtp, etc..."
   type        = string
 }
