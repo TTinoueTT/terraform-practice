@@ -11,10 +11,6 @@ module "vpc" {
   tag_name_prefix = var.tag_name_prefix
 }
 
-# data "aws_availability_zones" "available" {
-#   state = "available"
-# }
-
 module "subnet" {
   source               = "./modules/network/subnet"
   public_subnet_prefix = var.public_subnet_prefix
