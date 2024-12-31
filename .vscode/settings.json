@@ -59,4 +59,5 @@
         "sakuracloud",
         "tfvars"
     ]
+    // "ansible.python.interpreterPath": "/Users/t_inoue/Documents/01_ProjectsApp/11_Practices/10_AWS/udemy/terraform-practice/.venv/bin/python"
 }
