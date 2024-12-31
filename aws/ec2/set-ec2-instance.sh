@@ -6,45 +6,6 @@
 # - セキュリティグループ(AWS-MTA)
 # - AWS-PAY-SSH-KEY
 
-echo "create security group for AWS-MTA"
-PAY_1_IP="27.133.153.183/24"
-PAY_2_IP="27.133.128.250/24"
-PAY_3_IP="59.106.215.233/24"
-GROUP_NAME="AWS-MTA"
-
-# セキュリティグループの作成
-aws ec2 create-security-group --group-name $GROUP_NAME --description "AWS-MTA"
-
-# SSH
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 22 --cidr $PAY_1_IP >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 22 --cidr $PAY_2_IP >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 22 --cidr $PAY_3_IP >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 22 --cidr 221.117.53.242/29 >>/dev/null
-
-# SMTP
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 25 --cidr 0.0.0.0/0 >>/dev/null
-
-# HTTP, HTTPS
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 80 --cidr 0.0.0.0/0 >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 443 --cidr 0.0.0.0/0 >>/dev/null
-
-# POP3
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 110 --cidr 0.0.0.0/0 >>/dev/null
-
-# カスタムTCP
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 59630 --cidr $PAY_1_IP >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 59630 --cidr $PAY_2_IP >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 59630 --cidr $PAY_3_IP >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 59630 --cidr 221.117.53.240/29 >>/dev/null
-aws ec2 authorize-security-group-ingress --group-name $GROUP_NAME --protocol tcp --port 59630 --cidr 210.249.66.208/28 >>/dev/null
-
-echo "import key pair"
-aws ec2 import-key-pair \
-    --key-name AWS-PAY-SSH-KEY \
-    --public-key-material "c3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFCQVFDVEZWbkJFbElERHl0SXgwMlo3 YTR2MWhxNUJ6MTZWSm9kcVdaemNLeVVzTGRlekk4dXR1SFZJMERlNHoyMEsyVUFpZ1hDN0h0Y043 NXNPcW1QK3JVRjBwY0phY0pOY0dhTmVTS1RZSFdNYnFGc2ZMbzcxeXMvL2djeWwzRG1RMGFlQkVw UXI2NUgzdmcwbkhJTWxPc1orVHBWakVXK2ZQNHlTV1VNbjkzVExVYUo2MGhSbm5JU091czJNaDZQ aXpKVElwbkdUM0c1SlQ2cGYvMXZsMU9SSFpDeXc1eUZKNy9YODZwaC9za2xFVXNDN3B6Mzl1ZzJv QmdDOVludU1HZTN6OHptWFlMdjNqa1BheDhvdzR3dTZ4Qm5qVmdoSnZKSGxtT2E3RUZISFBNbG1L TGxtQWdxcmZBc29kc0ZENXMvU3RPdWppcXdXVGpodUVOL0t1NjMgQVdTLVBBWS1TU0gtS0VZCg=="
-
-echo "create ec2 instance and eip"
-
 # まず params/volume-mapping.json と ec2-user-data.sh を
 # 作成してから以降を張りつけて実行
 
