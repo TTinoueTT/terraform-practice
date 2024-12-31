@@ -1,0 +1,40 @@
+---
+- name: Install and Configure Nginx on EC2 Instances
+  hosts: ec2
+  # become: true
+  # become_method: sudo
+  vars:
+    ansible_become: true
+    ansible_become_method: sudo
+  # collections:
+  #   - amazon.aws
+  tasks:
+    # - name: Enable nginx1 repository via Amazon Linux Extras
+    #   amazon.aws.amazon_linux_extra:
+    #     name: nginx1
+    #     state: present
+
+    - name: Ensure nginx is installed
+      # ansible.builtin.yum:
+      #   name: nginx
+      #   state: present
+      ansible.builtin.command: amazon-linux-extras install nginx1 -y
+      changed_when: false
+
+    - name: Start nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+
+    - name: Enable nginx service
+      ansible.builtin.service:
+        name: nginx
+        enabled: true
+
+    - name: Get nginx Installed version
+      ansible.builtin.command: nginx -v
+      changed_when: false
+
+    - name: Get status of nginx service
+      ansible.builtin.command: systemctl status nginx
+      changed_when: false
