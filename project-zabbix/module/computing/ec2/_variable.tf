@@ -1,9 +1,8 @@
 variable "system" {}
 variable "env" {}
 variable "vpc_id" {}
-variable "my_ip" {}
 variable "instance_cnt" {}
 variable "subnets" {}
-variable "ami" {}
+variable "sg_ec2_id" {}
 variable "type" {}
 variable "key_name" {}

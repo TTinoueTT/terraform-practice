@@ -21,10 +21,6 @@ variable "instance_cnt" {
   description = "作成するインスタンスの数"
   type        = number
 }
-variable "ami" {
-  description = "作成するインスタンスの ami"
-  type        = string
-}
 variable "type" {
   description = "作成するインスタンスのタイプ"
   type        = string
