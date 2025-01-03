@@ -19,6 +19,20 @@ python3 --version
 which python3
 ```
 
+## Ansible によるサーバー構築・設定
+
+### Webサーバーの要件
+
+- ホスト名の変更
+- web サーバー用のパッケージのインストール
+- コンテンツの配置(htmlファイル)
+- サービスの起動
+
+
+```bash
+ansible-playbook -i ansible/inventory/hosts ansible/playbook/nginx_install.yaml
+```
+
 
 ## other
 ```

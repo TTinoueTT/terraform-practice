@@ -1,0 +1,34 @@
+---
+- name: Install and Configure Nginx on EC2 Instances
+  hosts: ec2
+  vars:
+    ansible_become: true
+    ansible_become_method: sudo
+  tasks:
+    - name: Configure set hostname
+      ansible.builtin.hostname:
+        name: web01
+        use: systemd
+
+    - name: Ensure nginx is installed
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Start nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+
+    - name: Enable nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: true
+
+    - name: Get nginx Installed version
+      ansible.builtin.command: nginx -v
+      changed_when: false
+
+    - name: Get status of nginx service
+      ansible.builtin.command: systemctl status nginx
+      changed_when: false
