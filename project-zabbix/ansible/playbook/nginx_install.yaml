@@ -15,6 +15,13 @@
         name: nginx
         state: present
 
+    - name: Copy content
+      ansible.builtin.copy:
+        src: ../../content/index.nginx-debian.html
+        dest: /var/www/html
+        owner: root
+        mode: "0644"
+
     - name: Start nginx service
       ansible.builtin.systemd:
         name: nginx
