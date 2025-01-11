@@ -4,10 +4,12 @@
   vars:
     ansible_become: true
     ansible_become_method: sudo
+    hostname: "web01"
+    local_content_path: "../../content/index.nginx-debian.html"
   tasks:
     - name: Configure set hostname
       ansible.builtin.hostname:
-        name: web01
+        name: "{{ hostname }}"
         use: systemd
 
     - name: Ensure nginx is installed
@@ -17,7 +19,7 @@
 
     - name: Copy content
       ansible.builtin.copy:
-        src: ../../content/index.nginx-debian.html
+        src: "{{ local_content_path }}"
         dest: /var/www/html
         owner: root
         mode: "0644"
