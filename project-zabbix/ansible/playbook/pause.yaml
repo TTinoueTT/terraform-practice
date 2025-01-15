@@ -1,0 +1,28 @@
+---
+- name: Pause tasks
+  hosts: localhost
+  gather_facts: false
+  connection: ansible.builtin.local
+
+  tasks:
+    - name: Pause 10 seconds
+      ansible.builtin.pause:
+        seconds: 10
+    - name: Pause 1 minutes
+      ansible.builtin.pause:
+        minutes: 1
+    # - name: pause 1 hours
+    #   ansible.builtin.pause:
+    #     hours: 1
+    # - name: pause 1 days
+    #   ansible.builtin.pause:
+    #     days: 1
+    # - name: pause 1 weeks
+    #   ansible.builtin.pause:
+    #     weeks: 1
+    # - name: pause 1 months
+    #   ansible.builtin.pause:
+    #     months: 1
+    # - name: pause 1 years
+    #   ansible.builtin.pause:
+    #     years: 1

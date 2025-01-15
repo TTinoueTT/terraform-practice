@@ -1,0 +1,14 @@
+---
+- name: Register a user account.
+  hosts: ec2
+  become: true
+
+  vars_files:
+    - ./vars/accounts.yaml
+
+  tasks:
+    - name: Create user account
+      ansible.builtin.user:
+        name: "{{ item['user_name'] }}"
+        password: "{{ item['user_password'] | password_hash('sha512') }}"
+      loop: "{{ accounts }}"

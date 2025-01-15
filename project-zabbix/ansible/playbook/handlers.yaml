@@ -1,0 +1,22 @@
+---
+- name: Test exec handlers.
+  hosts: ec2
+  gather_facts: false
+
+  tasks:
+    - name: Send command
+      ansible.builtin.command: echo "CookBook"
+      register: res_command
+      notify:
+        - handler1
+        - After debug2
+      changed_when: true
+
+  handlers:
+    - name: After debug1
+      ansible.builtin.debug:
+        msg: "{{ res_command['stdout_lines'] }}"
+      listen: "handler1"
+    - name: After debug2
+      ansible.builtin.debug:
+        msg: "handler2"
