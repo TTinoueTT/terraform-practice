@@ -1,0 +1,16 @@
+---
+- name: Check the value to be set to the loop variable.
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Check the value of the loop variable.
+      ansible.builtin.debug:
+        var: item
+      loop:
+        - user_name: taro
+          user_password: password@taro
+        - user_name: jiro
+          user_password: password@jiro
+        - user_name: hanako
+          user_password: password@hanako

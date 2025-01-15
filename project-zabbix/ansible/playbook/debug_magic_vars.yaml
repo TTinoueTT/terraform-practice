@@ -1,0 +1,18 @@
+---
+- name: Check the value of the Magic variable.
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Displays the value of inventor_hostname.
+      ansible.builtin.debug:
+        var: inventory_hostname
+    - name: Displays the value of group_names
+      ansible.builtin.debug:
+        var: group_names
+    - name: Displays the value of groups
+      ansible.builtin.debug:
+        var: groups
+    - name: Displays the value of hostvars
+      ansible.builtin.debug:
+        var: hostvars

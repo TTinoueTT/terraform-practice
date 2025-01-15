@@ -1,0 +1,15 @@
+---
+- name: シンプルなコマンド結果の登録
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: ホストの現在の日時を取得
+      ansible.builtin.command:
+        cmd: date
+      register: current_date # 実行結果を変数に格納
+
+    - name: 取得した日時を表示
+      ansible.builtin.debug:
+        # register で定義した変数を参照
+        msg: "現在の日時は {{ current_date.stdout }} です。"

@@ -1,0 +1,20 @@
+---
+- name: Stops the execution of the tas for the specified time.
+  hosts: ec2
+  gather_facts: false
+
+  tasks:
+    - name: Get the date and time
+      ansible.builtin.command:
+        cmd: date
+      register: result
+      loop:
+        - 1
+        - 2
+        - 3
+      loop_control:
+        pause: 10
+      changed_when: false
+    - name: Display the result
+      ansible.builtin.debug:
+        var: result

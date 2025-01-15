@@ -1,0 +1,43 @@
+---
+- name: Install and Configure Nginx on EC2 Instances
+  hosts: ec2
+  vars:
+    ansible_become: true
+    ansible_become_method: sudo
+    hostname: "web01"
+    local_content_path: "../../content/index.nginx-debian.html"
+  tasks:
+    - name: Configure set hostname
+      ansible.builtin.hostname:
+        name: "{{ hostname }}"
+        use: systemd
+
+    - name: Ensure nginx is installed
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Copy content
+      ansible.builtin.copy:
+        src: "{{ local_content_path }}"
+        dest: /var/www/html
+        owner: root
+        mode: "0644"
+
+    - name: Start nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        state: started
+
+    - name: Enable nginx service
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: true
+
+    - name: Get nginx Installed version
+      ansible.builtin.command: nginx -v
+      changed_when: false
+
+    - name: Get status of nginx service
+      ansible.builtin.command: systemctl status nginx
+      changed_when: false

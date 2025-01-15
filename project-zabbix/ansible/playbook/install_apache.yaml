@@ -1,0 +1,23 @@
+---
+- name: Install the packages related to Apache.
+  hosts: ec2
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Install the package.
+      ansible.builtin.debug:
+        msg: "{{ loop_count }} -> {{ item }}"
+      # ansible.builtin.apt:
+      #   name: "{{ package_name }}"
+      #   state: present
+      loop: "{{ packages }}"
+      loop_control:
+        # loop_var: package_name
+        index_var: loop_count
+      vars:
+        packages:
+          - apache2
+          - apache2-utils
+          - apache2-dev
+          - apache2-doc
